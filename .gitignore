@@ -2,3 +2,5 @@
 data/raw/
 *.zip
 __pycache__/
+data/silver/
+tmux-*.log
