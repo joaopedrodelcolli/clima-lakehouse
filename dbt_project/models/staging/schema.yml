@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_dim_estacao
+    columns:
+      - name: estacao_codigo
+        tests:
+          - unique
+          - not_null
+      - name: latitude
+        tests:
+          - not_null
+      - name: longitude
+        tests:
+          - not_null
+
+  - name: stg_fato_leitura_climatica
+    columns:
+      - name: estacao_codigo
+        tests:
+          - not_null
+      - name: datetime
+        tests:
+          - not_null
+      - name: temperatura_c
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 55
+              config:
+                severity: warn

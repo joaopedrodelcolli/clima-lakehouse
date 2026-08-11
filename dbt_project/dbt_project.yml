@@ -1,0 +1,11 @@
+name: clima_lakehouse
+version: "1.0.0"
+config-version: 2
+profile: clima_lakehouse
+model-paths: ["models"]
+clean-targets: ["target"]
+
+models:
+  clima_lakehouse:
+    staging:
+      +materialized: view

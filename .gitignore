@@ -5,3 +5,7 @@ __pycache__/
 data/silver/
 data/gold/
 tmux-*.log
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+dbt_project/clima.duckdb
