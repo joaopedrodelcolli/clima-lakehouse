@@ -3,4 +3,5 @@ data/raw/
 *.zip
 __pycache__/
 data/silver/
+data/gold/
 tmux-*.log
