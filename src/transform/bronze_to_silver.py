@@ -14,11 +14,21 @@ BATCH_SIZE = 25
 COLUNAS_RENOMEADAS = {
     "PRECIPITAÇÃO TOTAL, HORÁRIO (mm)": "precipitacao_mm",
     "PRESSAO ATMOSFERICA AO NIVEL DA ESTACAO, HORARIA (mB)": "pressao_mb",
+    "PRESSÃO ATMOSFERICA MAX.NA HORA ANT. (AUT) (mB)": "pressao_max_hora_ant_mb",
+    "PRESSÃO ATMOSFERICA MIN. NA HORA ANT. (AUT) (mB)": "pressao_min_hora_ant_mb",
     "RADIACAO GLOBAL (Kj/m²)": "radiacao_kj_m2",
     "TEMPERATURA DO AR - BULBO SECO, HORARIA (°C)": "temperatura_c",
+    "TEMPERATURA DO PONTO DE ORVALHO (°C)": "temperatura_orvalho_c",
+    "TEMPERATURA MÁXIMA NA HORA ANT. (AUT) (°C)": "temperatura_max_hora_ant_c",
+    "TEMPERATURA MÍNIMA NA HORA ANT. (AUT) (°C)": "temperatura_min_hora_ant_c",
+    "TEMPERATURA ORVALHO MAX. NA HORA ANT. (AUT) (°C)": "temperatura_orvalho_max_hora_ant_c",
+    "TEMPERATURA ORVALHO MIN. NA HORA ANT. (AUT) (°C)": "temperatura_orvalho_min_hora_ant_c",
+    "UMIDADE REL. MAX. NA HORA ANT. (AUT) (%)": "umidade_max_hora_ant_pct",
+    "UMIDADE REL. MIN. NA HORA ANT. (AUT) (%)": "umidade_min_hora_ant_pct",
     "UMIDADE RELATIVA DO AR, HORARIA (%)": "umidade_pct",
-    "VENTO, VELOCIDADE HORARIA (m/s)": "vento_velocidade_ms",
     "VENTO, DIREÇÃO HORARIA (gr) (° (gr))": "vento_direcao_gr",
+    "VENTO, RAJADA MAXIMA (m/s)": "vento_rajada_maxima_ms",
+    "VENTO, VELOCIDADE HORARIA (m/s)": "vento_velocidade_ms",
 }
 
 
