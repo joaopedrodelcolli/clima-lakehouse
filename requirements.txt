@@ -1,0 +1,6 @@
+pandas<3.0.0
+pyspark==4.2.0
+pyarrow>=18.0.0
+requests
+dbt-core
+dbt-duckdb
