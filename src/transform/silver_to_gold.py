@@ -16,11 +16,17 @@ GOLD_DIR = Path("data/gold")
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("anos", nargs="+", type=int)
+    parser.add_argument("anos", nargs="*", type=int, help="Anos a incluir; se omitido, usa todos os disponiveis na Silver")
     args = parser.parse_args()
 
+    anos = args.anos
+    if not anos:
+        pastas = sorted(SILVER_DIR.glob("ano=*"))
+        anos = [int(p.name.split("=")[1]) for p in pastas]
+        print(f"Nenhum ano informado, usando todos os disponiveis na Silver: {anos}")
+
     inicio_execucao = datetime.now(timezone.utc)
-    ano_label = args.anos[0] if len(args.anos) == 1 else f"{min(args.anos)}-{max(args.anos)}"
+    ano_label = anos[0] if len(anos) == 1 else f"{min(anos)}-{max(anos)}"
 
     try:
         spark = (
@@ -30,7 +36,7 @@ def main():
             .getOrCreate()
         )
 
-        caminhos = [str(SILVER_DIR / f"ano={ano}") for ano in args.anos]
+        caminhos = [str(SILVER_DIR / f"ano={ano}") for ano in anos]
         df = spark.read.parquet(*caminhos)
 
         dim_estacao = df.select(

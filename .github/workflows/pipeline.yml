@@ -30,7 +30,7 @@ jobs:
         run: python src/transform/bronze_to_silver.py $(date +%Y)
 
       - name: Modelagem Gold
-        run: python src/transform/silver_to_gold.py $(date +%Y)
+        run: python src/transform/silver_to_gold.py
 
       - name: Testes de qualidade (dbt)
         working-directory: dbt_project
