@@ -1,6 +1,5 @@
 """Bronze -> Silver: limpeza e padronizacao dos dados horarios do INMET."""
 import argparse
-import gc
 import glob
 from pathlib import Path
 
@@ -32,6 +31,19 @@ COLUNAS_RENOMEADAS = {
 }
 
 
+def parse_float_seguro(valor):
+    """Converte texto pt-BR pra float, tratando NULL/vazio como ausente (None)."""
+    if valor is None:
+        return None
+    valor = valor.strip()
+    if valor == "" or valor.upper() == "NULL":
+        return None
+    try:
+        return float(valor.replace(",", "."))
+    except ValueError:
+        return None
+
+
 def ler_metadado_estacao(caminho: Path) -> dict:
     with open(caminho, encoding="latin-1") as f:
         linhas = [next(f).strip() for _ in range(8)]
@@ -44,9 +56,9 @@ def ler_metadado_estacao(caminho: Path) -> dict:
         "uf": campos.get("UF"),
         "estacao_nome": campos.get("ESTACAO"),
         "estacao_codigo": campos.get("CODIGO (WMO)"),
-        "latitude": float(campos.get("LATITUDE", "0").replace(",", ".")),
-        "longitude": float(campos.get("LONGITUDE", "0").replace(",", ".")),
-        "altitude": float(campos.get("ALTITUDE", "0").replace(",", ".")),
+        "latitude": parse_float_seguro(campos.get("LATITUDE")),
+        "longitude": parse_float_seguro(campos.get("LONGITUDE")),
+        "altitude": parse_float_seguro(campos.get("ALTITUDE")),
     }
 
 
@@ -72,7 +84,7 @@ def main():
 
     spark = (
         SparkSession.builder.appName("inmet-silver")
-        .config("spark.driver.memory", "4g")
+        .config("spark.driver.memory", "2g")
         .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
     )
@@ -98,9 +110,6 @@ def main():
             n = df_spark.count()
             total_linhas += n
             print(f"[{ano}] lote {inicio // BATCH_SIZE + 1} gravado ({len(lote)} estacoes, {n} linhas)")
-
-            del partes, df_lote, df_spark
-            gc.collect()
 
         print(f"[{ano}] concluido: {total_linhas} linhas gravadas em {destino}")
 
