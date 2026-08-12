@@ -1,4 +1,9 @@
 """Bronze -> Silver: limpeza e padronizacao dos dados horarios do INMET."""
+import sys
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+from datetime import datetime, timezone
+from src.observability.logger import registrar
 import argparse
 import glob
 from pathlib import Path
@@ -90,28 +95,34 @@ def main():
     )
 
     for ano in args.anos:
-        arquivos = sorted(glob.glob(str(RAW_DIR / str(ano) / "*.CSV")))
-        print(f"[{ano}] {len(arquivos)} estacoes encontradas, em lotes de {BATCH_SIZE}")
+        inicio_execucao = datetime.now(timezone.utc)
+        try:
+            arquivos = sorted(glob.glob(str(RAW_DIR / str(ano) / "*.CSV")))
+            print(f"[{ano}] {len(arquivos)} estacoes encontradas, em lotes de {BATCH_SIZE}")
 
-        destino = SILVER_DIR / f"ano={ano}"
-        total_linhas = 0
+            destino = SILVER_DIR / f"ano={ano}"
+            total_linhas = 0
 
-        for inicio in range(0, len(arquivos), BATCH_SIZE):
-            lote = arquivos[inicio: inicio + BATCH_SIZE]
-            partes = [ler_estacao(Path(a)) for a in lote]
-            df_lote = pd.concat(partes, ignore_index=True)
+            for inicio_lote in range(0, len(arquivos), BATCH_SIZE):
+                lote = arquivos[inicio_lote: inicio_lote + BATCH_SIZE]
+                partes = [ler_estacao(Path(a)) for a in lote]
+                df_lote = pd.concat(partes, ignore_index=True)
 
-            df_spark = spark.createDataFrame(df_lote)
-            df_spark = df_spark.dropDuplicates(["estacao_codigo", "datetime"])
+                df_spark = spark.createDataFrame(df_lote)
+                df_spark = df_spark.dropDuplicates(["estacao_codigo", "datetime"])
 
-            modo = "overwrite" if inicio == 0 else "append"
-            df_spark.write.mode(modo).parquet(str(destino))
+                modo = "overwrite" if inicio_lote == 0 else "append"
+                df_spark.write.mode(modo).parquet(str(destino))
 
-            n = df_spark.count()
-            total_linhas += n
-            print(f"[{ano}] lote {inicio // BATCH_SIZE + 1} gravado ({len(lote)} estacoes, {n} linhas)")
+                n = df_spark.count()
+                total_linhas += n
+                print(f"[{ano}] lote {inicio_lote // BATCH_SIZE + 1} gravado ({len(lote)} estacoes, {n} linhas)")
 
-        print(f"[{ano}] concluido: {total_linhas} linhas gravadas em {destino}")
+            print(f"[{ano}] concluido: {total_linhas} linhas gravadas em {destino}")
+            registrar("transformacao_silver", ano, "sucesso", linhas=total_linhas, inicio=inicio_execucao)
+        except Exception as e:
+            registrar("transformacao_silver", ano, "falha", inicio=inicio_execucao, erro=str(e))
+            raise
 
     spark.stop()
 

@@ -1,4 +1,9 @@
 """Baixa o histórico de dados horários do INMET e salva raw (Bronze), por ano."""
+import sys
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+from datetime import datetime, timezone
+from src.observability.logger import registrar
 import argparse
 import zipfile
 from pathlib import Path
@@ -44,7 +49,14 @@ def main():
     args = parser.parse_args()
 
     for ano in args.anos:
-        baixar_ano(ano)
+        inicio = datetime.now(timezone.utc)
+        try:
+            destino = baixar_ano(ano)
+            n_arquivos = len(list(destino.glob("*.CSV")))
+            registrar("ingestao_bronze", ano, "sucesso", linhas=n_arquivos, inicio=inicio)
+        except Exception as e:
+            registrar("ingestao_bronze", ano, "falha", inicio=inicio, erro=str(e))
+            raise
 
 
 if __name__ == "__main__":
