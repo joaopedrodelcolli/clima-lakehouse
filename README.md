@@ -151,4 +151,4 @@ python src/mcp_server/server.py
 ## Autor
 
 João Pedro Del Colli da Silva — trainee de engenharia de dados na DataRocks.
-[LinkedIn](https://www.linkedin.com/in/SEU-HANDLE-AQUI) · joao.silva@datarocks.com.br
+[LinkedIn](https://www.linkedin.com/in/joao-pedro-del-colli) · joao.silva@datarocks.com.br
