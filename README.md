@@ -19,14 +19,28 @@ que qualquer pessoa pode clonar e rodar, usando um domínio de dados diferente (
 reaproveitar nenhum artefato ou dado de cliente.
 
 ## Arquitetura
-INMET (historico + API)
-  -> BRONZE  : ingestao raw, sem transformacao (CSV originais, particionado por ano/estacao)
-  -> SILVER  : PySpark + pandas (encoding, tipos, deduplicacao) -> Parquet particionado por ano
-  -> GOLD    : modelagem dimensional -> fato_leitura_climatica + dim_estacao + dim_data
-               + agregacoes (chuva/regiao, temperatura/UF)
-       -> dbt             : testes de qualidade (not_null, unique, accepted_range)
-       -> observabilidade : log JSONL de cada execucao do pipeline
-       -> servidor MCP    : consulta em linguagem natural via LLM
+```
+INMET (histórico + API)
+│
+▼
+┌─────────┐ ingestão raw, sem transformação
+│ BRONZE │ (CSV originais, particionado por ano/estação)
+└────┬────┘
+│ PySpark + pandas: encoding, tipos, deduplicação
+▼
+┌─────────┐
+│ SILVER │ Parquet particionado por ano, schema padronizado
+└────┬────┘
+│ modelagem dimensional
+▼
+┌─────────┐
+│ GOLD │ fato_leitura_climatica + dim_estacao + dim_data
+└────┬────┘ + agregações (chuva/região, temperatura/UF)
+│
+├──► dbt (testes de qualidade: not_null, unique, accepted_range)
+├──► observabilidade (log JSONL de cada execução do pipeline)
+└──► servidor MCP (consulta em linguagem natural via LLM)
+```
 ## Fonte de dados
 
 [Portal de Dados Históricos do INMET](https://portal.inmet.gov.br/dadoshistoricos) — arquivos
@@ -92,16 +106,19 @@ demanda via `workflow_dispatch`): baixa os dados do ano corrente, roda Silver, r
 com `dbt build`.
 
 ## Estrutura do repositório
+```
 clima-lakehouse/
-  src/
-    ingest/          # download do historico INMET
-    transform/        # bronze_to_silver.py, silver_to_gold.py
-    observability/     # logger.py
-    mcp_server/        # servidor MCP para consulta em linguagem natural
-  dbt_project/         # testes de qualidade sobre a camada Gold
-  .github/workflows/
-    pipeline.yml      # ingestao + transformacao + testes, agendado
-  requirements.txt
+├── src/
+│ ├── ingest/ # download do histórico INMET
+│ ├── transform/ # bronze_to_silver.py, silver_to_gold.py
+│ ├── observability/ # logger.py
+│ └── mcp_server/ # servidor MCP para consulta em linguagem natural
+├── dbt_project/ # testes de qualidade sobre a camada Gold
+├── .github/workflows/
+│ └── pipeline.yml # ingestão + transformação + testes, agendado
+└── requirements.txt
+```
+
 ## Como rodar localmente
 
 ```bash
